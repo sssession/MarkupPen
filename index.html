@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <script>
+       window.addEventListener("DOMContentLoaded", function(){
+        var theButton;
+        var ToolbarUIItemProperties = {
+          title: "Highlight text",
+          icon: "img/icon.png",
+		  onclick:function(){
+			var tab = opera.extension.tabs.getFocused();
+			if (tab) {
+				opera.extension.broadcastMessage(opera.extension.tabs.getFocused().url);
+			}
+		  }
+        }
+        theButton = opera.contexts.toolbar.createItem(ToolbarUIItemProperties);
+        opera.contexts.toolbar.addItem(theButton);
+      }, false);
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

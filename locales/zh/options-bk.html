@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/options.css">
+  <title>Markup Pen Options</title>
+</head>
+<body>
+  <header>
+    <img src="img/extension.png" />
+    <h1 id="widget-name">Markup Pen</h1>
+    <h2>By <span id="widget-author"><a href="http://twitter.com/siemonday">Siemon</a></h2>
+  </header>
+  <section>
+    <h3>设置默认背景色</h3>
+    <fieldset>
+     <select name="colour" id="colour" />
+       <option value="yellow">默认黄</option>
+       <option value="#f47983">桃红</option>
+       <option value="#44cef6">蓝色</option>
+       <option value="#96ce54">豆青</option>
+     </select>
+    </fieldset>
+  </section>
+  <footer>
+    <p>我设计这个插件的初衷，是标注了网页可以重新显示做过的这些笔记。插件在类似http://m.bbc.co.uk/news的网站上工作正常，在部分网站上可能不能正常工作，如果你发现了这类问题，可以<a href="http://twitter.com/siemonday">给我发推</a> 或者 <a href="mailto:siemonday@gmail.com">发邮件</a>我会在下一个版本中做修改。</p>
+  </footer>
+<script type="text/javascript">
+addEventListener(
+  'DOMContentLoaded',function(){
+    var s=widget.preferences;
+    var colour=document.getElementById("colour");
+    colour.addEventListener('change',function(){
+      s.colour=this.value;
+    },false);
+    if(s.colour) colour.value=s.colour;
+  },false
+  );
+</script>
+</body>
+</html>

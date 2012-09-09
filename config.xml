@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" id="http://siemonday.github.com/2012/07/12/MarkupPen.html" defaultlocale="en">
+	<name>MarkupPen</name>
+	<description xml:lang="en">Highlight words and remember them.When you open the page again,you can view the text highlighted before.</description>
+	<description xml:lang="zh">用MarkupPen给文本加标注。插件能记录下你标注的内容，并且在下次显示。</description>
+  	<author href="http://twitter.com/siemonday">Simon Day</author>
+  	<icon src="img/extension.png"/>
+</widget>
