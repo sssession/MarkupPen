@@ -26,25 +26,25 @@ Markuppen.prototype={
 		if (typeof window.getSelection !== 'undefined') {
 			var tempSel=window.getSelection();
 			var tempRange=tempSel.getRangeAt(0);
-			//below should be in if close
+			//below should be in the 'if' closure
 			var scx=this.makeXPath(tempRange.startContainer);
 			var ecx=this.makeXPath(tempRange.endContainer);
 			var so=tempRange.startOffset;
 			var eo=tempRange.endOffset;
-			if (tempRange != null) {
+			if (tempRange !== null) {
 				window.localStorage.setItem(this.url+'sel'+this.selCount, this.makeXPath(tempRange.startContainer) + '|' + tempRange.startOffset + '|' + this.makeXPath(tempRange.endContainer) + '|' + tempRange.endOffset + '|' + tempRange.toString() + '|' + this.color);
 				window.localStorage.setItem(this.url+'selCount',this.selCount);
 			}
 			tempSel.removeAllRanges();
 
 			document.designMode="on";
-			//alert("on");
+
 			var selection = window.getSelection();
 			//var range = selection.getRangeAt(0);
 			var range=document.createRange();
 			range.setStart(document.evaluate(scx,document,null,window.XPathResult.FIRST_ORDERED_NODE_TYPE,null).singleNodeValue,Number(so));
 			range.setEnd(document.evaluate(ecx,document,null,window.XPathResult.FIRST_ORDERED_NODE_TYPE,null).singleNodeValue,Number(eo));
-			/*if (range != null) {
+			/*if (range !== null) {
 				window.localStorage.setItem(this.url+'sel'+this.selCount, this.makeXPath(range.startContainer) + '|' + range.startOffset + '|' + this.makeXPath(range.endContainer) + '|' + range.endOffset + '|' + range.toString() + '|' + this.color);
 				window.localStorage.setItem(this.url+'selCount',this.selCount);
 			}*/
@@ -62,28 +62,38 @@ Markuppen.prototype={
 	},
 	restoreSelection:function(lastSel,lastboSel){
 		var parent;
+		var errorCount=0;
 		for(var i=lastboSel;i<=lastSel;i++){//!! loop order should reverse as range.setStart applys to the updated document every time
 			var selectionDetail = window.localStorage.getItem(this.url+'sel'+i);
 			if (selectionDetail) {
 				selectionDetail = selectionDetail.split(/\|/g);
-				if (typeof window.getSelection != 'undefined') {
+				if (typeof window.getSelection !== 'undefined') {
 					document.designMode="on";
 					var selection = window.getSelection();
 					selection.removeAllRanges();
 					var range = document.createRange();
-					range.setStart(document.evaluate(selectionDetail[0], document, null, window.XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue, Number(selectionDetail[1]));
-					range.setEnd(document.evaluate(selectionDetail[2], document, null, window.XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue, Number(selectionDetail[3]));
+					try{
+						range.setStart(document.evaluate(selectionDetail[0], document, null, window.XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue, Number(selectionDetail[1]));
+						range.setEnd(document.evaluate(selectionDetail[2], document, null, window.XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue, Number(selectionDetail[3]));
 					/*parent=document.createElement("span");
 					parent.style.backgroundColor=selectionDetail[5];
 					range.surroundContents(parent);
 					selection.removeAllRanges();*/
-					selection.addRange(range);
+						selection.addRange(range);
 					//document.designMode="on";
 					//document.execCommand("HiliteColor",false,selectionDetail[5]);
-					document.execCommand("fontName",false,"sel"+i);
+						document.execCommand("fontName",false,"sel"+i);
+					}
+					catch(e){
+						//show error dialog one time
+						if (errorCount === 0) { // not alert again for other errors
+							alert("Sorry but something bad happens when rendering markups.You can list them or view the history page.");
+						}
+						errorCount++;
+					}
 					document.designMode="off";
 					selection.removeAllRanges();
-					if(selectionDetail[5]!="transparent"){
+					if(selectionDetail[5]!=="transparent"){
 						hlStyleSheet.insertRule("font[face='sel"+i+"'] {background-color:"+selectionDetail[5]+"}",0);
 					}else{
 						hlStyleSheet.insertRule("font[face='sel"+i+"'] {background-color:"+selectionDetail[5]+";cursor:text !important;}",0);
@@ -99,18 +109,19 @@ Markuppen.prototype={
 		while(selsLen--){
 			sels[selsLen].removeAttribute("class");
 		}
-		if(tar.tagName=="FONT"){
+		if(tar.tagName==="FONT"){
 			var markName=tar.getAttribute("face");
 			var current=document.querySelectorAll("font[face='"+markName+"']");
 			var currentLen=current.length;
-			if(currentLen>0&&window.getComputedStyle(current[0],null).backgroundColor!="transparent")
-			while(currentLen--){
-				current[currentLen].className="hlSelected";//highlight selected
+			if(currentLen>0&&window.getComputedStyle(current[0],null).backgroundColor!=="transparent"){
+				while(currentLen--){
+					current[currentLen].className="hlSelected";//highlight selected
+				}
 			}
 		}
 	},
 	deleteArea:function(e){
-		if(e.keyCode==8||e.keyCode==68){
+		if(e.keyCode===8||e.keyCode===68){
 			e.preventDefault();
 			var hlSels=document.querySelectorAll("font.hlSelected");
 			var hlSelsCount=hlSels.length;
@@ -156,7 +167,7 @@ Toolbar.prototype={
 		bar.onclick=function(){
 			var evt=evt||window.event;
 			var evt_targ=evt.srcElement||evt.target;
-			if(evt_targ.tagName=="A"){
+			if(evt_targ.tagName === "A"){
 				btns[evt_targ.getAttribute('class')]["cmd"](/* optional */evt_targ);
 			}
 		};
@@ -170,7 +181,7 @@ var predKit={
 		var ret="";
 		for(btn in btns){
 			ret+='<a class="'+btn+'">'+btns[btn]["name"]+'</a>';
-		}
+		}//use iteration instead of emuration,as emuration is not ordered
 		return ret;
 	},
 	colorPred:function(btns){
@@ -192,7 +203,7 @@ var predKit={
 		#MarkuppenToolbar a:hover{color:#000;background:#fff;}\
 		#MarkuppenColorbar a{display:inline-block;margin-right:6px;width:20px;height:20px;border-radius:12px;border:1px solid #ccc;text-indent:-9em;overflow:hidden;}\
 		#overlay0{position:absolute;top:0;z-index:9998;background:#000;opacity:0.5;}\
-		#listbox0{background:#EBEFF4;position:fixed;top:0;left:0;padding:20px;z-index:9999;}\
+		#listbox0{background:#EBEFF4;position:fixed;top:0;left:0;padding:20px;z-index:9999;overflow:scroll;}\
 		#dialog0{position:absolute;z-index:9999;background:#fff;}\
 		font[face^='sel']{cursor:default;}\
 		.hlSelected{background-color:#3399FF !important;color:#fff !important;}\
@@ -246,13 +257,16 @@ var mainbtns={
 			var listbox0=document.getElementById("listbox0")||document.createElement("iframe");
 			if(!listbox0.id){
 				listbox0.id="listbox0";
-				listbox0.height=document.body.clientHeight;
+				listbox0.height = document.documentElement.clientHeight-40;
 				document.body.appendChild(listbox0);
 				var liststr='<ul>';
 				for(var i=1;i<=pen.selCount;i++){
-					list=window.localStorage.getItem(pen.url+'sel'+i).split(/\|/g);
-					if(list[5]!="transparent"){
-						liststr+='<li>'+list[4]+'</li>';
+					var item = window.localStorage.getItem(pen.url+'sel'+i);
+					if(item){
+						list=item.split(/\|/g);
+						if(list[5]!=="transparent" && list[4]){
+							liststr+='<li>'+list[4]+'</li>';
+						}
 					}
 				}
 				liststr+="</ul>";
@@ -279,7 +293,7 @@ var mainbtns={
 			var overlay0=document.getElementById("overlay0")||document.createElement("div");
 			if(!overlay0.id){
 				overlay0.id="overlay0";
-				overlay0.style.height=document.body.scrollHeight+"px";
+				overlay0.style.height=document.body.scrollHeight+"px";//may use document.documentElement here
 				overlay0.style.width =document.body.scrollWidth+"px";
 				document.body.appendChild(overlay0);
 			}
@@ -361,7 +375,7 @@ var hlStyleSheet=document.styleSheets[document.styleSheets.length-1];
 /*window.onload=function(){
 	pen.restoreSelection(pen.selCount,0);
 };*/
-if(window.top==window.self){
+if(window.top===window.self){
 	document.addEventListener("DOMContentLoaded",function(){
 		pen.restoreSelection(pen.selCount,0);
 	},false);
@@ -375,20 +389,26 @@ var toggle=0;//toobar off
 
 opera.extension.onmessage=function(event){
 	var message = event.data;
-	if(window.top==window.self && message==url){
+	if(window.top===window.self && message===url){
 		toggle^=1;
 	}
-	if (toggle && window.top==window.self && message == url) {
+	if (toggle && window.top===window.self && message === url) {
 		if(!widget.preferences.isAlerted){
 			alert("NEW in MarkupPen 1.3:\nWhen you wanna delete one markup,select it and press backspace or d on your keyboard.\n\nThis dialog will not show next time.");
 			widget.preferences.isAlerted="true";
 		}
-		document.onmouseup=function(){
-			if(window.getSelection()!='' && pen.isEnabled){
+		/*document.onmouseup=function(){
+			if(window.getSelection()!=='' && pen.isEnabled){
 				pen.selCount++;
 				pen.markNStore();
 			}
-		};//should be addEventListerer here
+		};//should be addEventListerer here*/
+		document.addEventListener("mouseup",function() {
+			if(window.getSelection()!=='' && pen.isEnabled){
+				pen.selCount++;
+				pen.markNStore();
+			}			
+		},false);
 		pen.isEnabled=true;
 		var mainBar=new Toolbar("MarkuppenToolbar",0,0);
 		mainBar.init(predKit["mainPred"],mainbtns);
@@ -407,7 +427,7 @@ opera.extension.onmessage=function(event){
 		document.addEventListener("click",pen.selectArea,false);
 		document.addEventListener("keydown",pen.deleteArea,false);
 	}
-	if(!toggle && window.top==window.self && message == url){
+	if(!toggle && window.top===window.self && message === url){
 		//remove toolbar,stop highlighting
 		var mupt=document.getElementById("MarkuppenToolbar");
 		if(mupt){
